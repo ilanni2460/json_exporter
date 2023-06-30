@@ -26,6 +26,7 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
+	"github.com/araddon/dateparse"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus-community/json_exporter/config"
@@ -58,6 +59,14 @@ func SanitizeValue(s string) (float64, error) {
 	if s == "<nil>" {
 		return math.NaN(), nil
 	}
+
+	// 使用 araddon/dateparse 库解析日期字符串
+	t, err := dateparse.ParseAny(s)
+	if err == nil {
+		return float64(t.Unix()), nil
+	}
+	resultErr = resultErr + "; " + fmt.Sprintf("%s", err)
+
 	return value, fmt.Errorf(resultErr)
 }
 
